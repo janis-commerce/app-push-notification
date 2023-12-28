@@ -125,7 +125,10 @@ describe('utils', () => {
     it('returns an alert method call with the default receivedMessage when notification object isnt received', () => {
       DefaultAlert({data: {message: 'default message'}});
 
-      expect(alertSpy).toBeCalledWith('A new FCM message arrived!', undefined);
+      expect(alertSpy).toHaveBeenCalledWith(
+        'A new FCM message arrived!',
+        undefined,
+      );
     });
 
     it('returns an alert method call with the notification title and body when this is received', () => {
@@ -133,7 +136,10 @@ describe('utils', () => {
         notification: {title: 'received message', body: 'received body'},
       });
 
-      expect(alertSpy).toBeCalledWith('received message', 'received body');
+      expect(alertSpy).toHaveBeenCalledWith(
+        'received message',
+        'received body',
+      );
     });
   });
   describe('utils from apps helpers', () => {

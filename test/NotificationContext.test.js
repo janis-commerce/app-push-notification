@@ -1,9 +1,6 @@
 import React from 'react';
 import {renderHook} from '@testing-library/react-native';
-import {
-  NotificationContext,
-  useNotification,
-} from '../lib/NotificationContext';
+import {NotificationContext, useNotification} from '../lib/NotificationContext';
 
 describe('useNotification', () => {
   it('must be a function', () => {
@@ -14,7 +11,7 @@ describe('useNotification', () => {
     jest.spyOn(React, 'useContext');
     renderHook(() => useNotification());
 
-    expect(React.useContext).toBeCalledWith(NotificationContext);
+    expect(React.useContext).toHaveBeenCalledWith(NotificationContext);
   });
 
   it('must return an object', () => {
