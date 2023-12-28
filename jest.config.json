@@ -4,7 +4,7 @@
 	"setupFiles": ["<rootDir>/setupTest/jest.setup.js"],
 	"setupFilesAfterEnv": ["<rootDir>/setupTest/jest.setup.js"],
 	"verbose": true,
-	"moduleDirectories": ["node_modules", "src"],
+	"moduleDirectories": ["node_modules", "lib"],
 	"clearMocks": true,
 	"moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
     "testMatch": ["**/__tests__/**/*.js?(x)", "**/?(*.)+(spec|test).js?(x)"],
@@ -35,6 +35,6 @@
 		"\\.(css|less)$": "identity-obj-proxy"
 	},
     "transformIgnorePatterns": [
-        "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*'|@react-native-firebase/analytics|@react-native-firebase/app)"
+        "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*'|@react-native-firebase/messaging|@react-native-firebase/app)"
     ]
 }
