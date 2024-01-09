@@ -36,6 +36,18 @@ This library provides the following components and methods:
 <dl>
 <dt><a href="#useNotification">useNotification()</a> ⇒ <code>object</code></dt>
 <dd><p>is a hook, which returns the elements contained within the notifications context. Returns an object containing:</p>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>deviceToken</td>
+<td>is the token linked to the device, which we use to subscribe it to notifications.</td>
+</tr>
+</tbody></table>
 </dd>
 <dt><a href="#NotificationProvider">NotificationProvider(children, foregroundCallback, backgroundCallback, config, events, environment)</a> ⇒ <code>null</code> | <code>React.element</code></dt>
 <dd><p>It is the main component of the package, it is a HOC that is responsible for handling the logic of subscribing to notifications and receiving messages from the Firebase console. The HOC contains listeners to listen to notifications in the foreground and background, so (unless we cancel the subscription), we will receive notifications from the app even when it is closed.</p>
@@ -46,13 +58,16 @@ This library provides the following components and methods:
 
 ## useNotification() ⇒ <code>object</code>
 is a hook, which returns the elements contained within the notifications context. Returns an object containing:
+| name | description |
+ |----------|----------|
+ | deviceToken  | is the token linked to the device, which we use to subscribe it to notifications. |
 
 **Kind**: global function  
 **Example**  
 ```js
 import {useNotification} from '@janiscommerce/app-push-notification'
 
-const {deviceToken} = useNotification()
+const {} = useNotification()
 ```
 <a name="NotificationProvider"></a>
 
