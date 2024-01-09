@@ -7,7 +7,7 @@
   "scripts": {
     "test": "jest",
     "lint": "eslint .",
-    "build-docs": "jsdoc2md --template template-readme.hbs --files lib/*.js > README.md",
+    "build-docs": "jsdoc2md --template template-readme.hbs --files lib/*.js  lib/NotificationProvider/*.js > README.md",
     "test:coverage": "jest --collectCoverage",
     "validate:code": "npm run lint -- --fix  && jest --collectCoverage"
   },

@@ -1,0 +1,34 @@
+# @janiscommerce/app-push-notification
+
+![janis-logo](brand-logo.png)
+
+Library for receiving notifications issued from firebase/janis.
+
+
+## PeerDependencies installation:
+
+In order to receive notifications it is necessary to include the dependency
+
+
+```javascript
+    npm install @react-native-firebase/messaging
+```
+
+## Installation:
+
+
+```javascript
+    npm install @janis-commerce/app-push-notification
+```
+
+
+## What is received from firebase?
+
+What is received is an object called RemoteMessage, which contains the data emitted from Firebase and is what triggers the notification listeners.
+Inside remoteMessage you get the notifications object that contains the information that we could use to render a component with the application in the foreground
+
+For more information about this, read https://rnfirebase.io/reference/messaging/remotemessage
+
+This library provides the following components and methods:
+
+{{>main}}
