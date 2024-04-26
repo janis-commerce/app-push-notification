@@ -1,24 +1,22 @@
-import * as deviceInfo from 'react-native-device-info';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Alert} from 'react-native';
 import {
-  DefaultAlert,
-  getDeviceData,
   getFCMToken,
-  getHeaders,
   isArray,
   isFunction,
   isObject,
   isString,
   setupBackgroundMessageHandler,
   setupForegroundMessageHandler,
-  formatDeviceDataForUserAgent,
-  validateOauthData,
+  setupNotificationOpenedHandler,
+  isBoolean,
+  isNumber,
+  promiseWrapper,
 } from '../../lib/utils';
 
 const mockGetToken = jest.fn();
 const mockOnMessage = jest.fn();
 const mockBackgroundMessageHandler = jest.fn();
+const mockOnNotificationOpenedApp = jest.fn();
 const mockHasPermission = jest.fn();
 
 jest.mock('@react-native-firebase/messaging', () => ({
@@ -28,24 +26,10 @@ jest.mock('@react-native-firebase/messaging', () => ({
     getToken: mockGetToken,
     onMessage: mockOnMessage,
     setBackgroundMessageHandler: mockBackgroundMessageHandler,
+    onNotificationOpenedApp: mockOnNotificationOpenedApp,
     hasPermission: mockHasPermission,
   })),
 }));
-
-const alertSpy = jest.spyOn(Alert, 'alert');
-const baseHeaders = {
-  'content-Type': 'application/json',
-  'janis-api-key': 'Bearer',
-};
-
-const buildNumberSpy = jest.spyOn(deviceInfo, 'getBuildNumber');
-const applicationNameSpy = jest.spyOn(deviceInfo, 'getApplicationName');
-const versionSpy = jest.spyOn(deviceInfo, 'getVersion');
-const bundleIdSpy = jest.spyOn(deviceInfo, 'getBundleId');
-const systemNameSpy = jest.spyOn(deviceInfo, 'getSystemName');
-const systemVersionSpy = jest.spyOn(deviceInfo, 'getSystemVersion');
-const uniqueIdSpy = jest.spyOn(deviceInfo, 'getUniqueId');
-const modelSpy = jest.spyOn(deviceInfo, 'getModel');
 
 describe('utils', () => {
   describe('messaging utils', () => {
@@ -114,32 +98,17 @@ describe('utils', () => {
         expect(mockCallback).toHaveBeenCalledWith(fakeRemoteMessage);
       });
     });
-  });
-  describe('DefaultAlert component', () => {
-    it('returns null when not receive a valid object', () => {
-      const AlertComponent = DefaultAlert();
 
-      expect(AlertComponent).toBe(null);
-    });
+    describe('setupNotificationOpenedHandler provides the listener that listens for the opening of the app from the background through a notification', () => {
+      it('calls setBackgroundMessageHandler with remoteMessage', () => {
+        const mockCallback = jest.fn();
+        setupNotificationOpenedHandler(mockCallback);
 
-    it('returns an alert method call with the default receivedMessage when notification object isnt received', () => {
-      DefaultAlert({data: {message: 'default message'}});
+        mockOnNotificationOpenedApp.mock.calls[0][0](fakeRemoteMessage);
 
-      expect(alertSpy).toHaveBeenCalledWith(
-        'A new FCM message arrived!',
-        undefined,
-      );
-    });
-
-    it('returns an alert method call with the notification title and body when this is received', () => {
-      DefaultAlert({
-        notification: {title: 'received message', body: 'received body'},
+        expect(mockOnNotificationOpenedApp).toHaveBeenCalledTimes(1);
+        expect(mockCallback).toHaveBeenCalledWith(fakeRemoteMessage);
       });
-
-      expect(alertSpy).toHaveBeenCalledWith(
-        'received message',
-        'received body',
-      );
     });
   });
   describe('utils from apps helpers', () => {
@@ -187,379 +156,48 @@ describe('utils', () => {
       });
     });
 
-    describe('getHeaders helper', () => {
-      describe('Params', () => {
-        it('should return only baseHeaders if no params are passed', () => {
-          buildNumberSpy.mockReturnValueOnce(undefined);
-          applicationNameSpy.mockReturnValueOnce(undefined);
-          versionSpy.mockReturnValueOnce(undefined);
-          bundleIdSpy.mockReturnValueOnce(undefined);
-          systemNameSpy.mockReturnValueOnce(undefined);
-          systemVersionSpy.mockReturnValueOnce(undefined);
-          uniqueIdSpy.mockReturnValueOnce(undefined);
-          modelSpy.mockReturnValueOnce(undefined);
-
-          expect(getHeaders()).toStrictEqual(baseHeaders);
-        });
-
-        it('should return only baseHeaders if params arent valid object', () => {
-          buildNumberSpy.mockReturnValueOnce(undefined);
-          applicationNameSpy.mockReturnValueOnce(undefined);
-          versionSpy.mockReturnValueOnce(undefined);
-          bundleIdSpy.mockReturnValueOnce(undefined);
-          systemNameSpy.mockReturnValueOnce(undefined);
-          systemVersionSpy.mockReturnValueOnce(undefined);
-          uniqueIdSpy.mockReturnValueOnce(undefined);
-          modelSpy.mockReturnValueOnce(undefined);
-
-          expect(getHeaders(1)).toStrictEqual(baseHeaders);
-        });
-
-        it('should include custom client header', () => {
-          buildNumberSpy.mockReturnValueOnce(undefined);
-          applicationNameSpy.mockReturnValueOnce(undefined);
-          versionSpy.mockReturnValueOnce(undefined);
-          bundleIdSpy.mockReturnValueOnce(undefined);
-          systemNameSpy.mockReturnValueOnce(undefined);
-          systemVersionSpy.mockReturnValueOnce(undefined);
-          uniqueIdSpy.mockReturnValueOnce(undefined);
-          modelSpy.mockReturnValueOnce(undefined);
-
-          const params = {
-            client: 'my-client',
-          };
-          const expectedHeaders = {
-            ...baseHeaders,
-            'janis-client': 'my-client',
-          };
-
-          expect(getHeaders(params)).toStrictEqual(expectedHeaders);
-        });
-
-        it('should include custom access token header', () => {
-          buildNumberSpy.mockReturnValueOnce(undefined);
-          applicationNameSpy.mockReturnValueOnce(undefined);
-          versionSpy.mockReturnValueOnce(undefined);
-          bundleIdSpy.mockReturnValueOnce(undefined);
-          systemNameSpy.mockReturnValueOnce(undefined);
-          systemVersionSpy.mockReturnValueOnce(undefined);
-          uniqueIdSpy.mockReturnValueOnce(undefined);
-          modelSpy.mockReturnValueOnce(undefined);
-
-          const params = {
-            accessToken: 'my-access-token',
-          };
-          const expectedHeaders = {
-            ...baseHeaders,
-            'janis-api-secret': 'my-access-token',
-          };
-
-          expect(getHeaders(params)).toStrictEqual(expectedHeaders);
-        });
-
-        it('should include page and page size headers', () => {
-          buildNumberSpy.mockReturnValueOnce(undefined);
-          applicationNameSpy.mockReturnValueOnce(undefined);
-          versionSpy.mockReturnValueOnce(undefined);
-          bundleIdSpy.mockReturnValueOnce(undefined);
-          systemNameSpy.mockReturnValueOnce(undefined);
-          systemVersionSpy.mockReturnValueOnce(undefined);
-          uniqueIdSpy.mockReturnValueOnce(undefined);
-          modelSpy.mockReturnValueOnce(undefined);
-
-          const params = {
-            page: 1,
-            pageSize: 10,
-          };
-          const expectedHeaders = {
-            ...baseHeaders,
-            'x-janis-page': 1,
-            'x-janis-page-size': 10,
-          };
-
-          expect(getHeaders(params)).toStrictEqual(expectedHeaders);
-        });
-
-        it('should include getTotals header', () => {
-          buildNumberSpy.mockReturnValueOnce(undefined);
-          applicationNameSpy.mockReturnValueOnce(undefined);
-          versionSpy.mockReturnValueOnce(undefined);
-          bundleIdSpy.mockReturnValueOnce(undefined);
-          systemNameSpy.mockReturnValueOnce(undefined);
-          systemVersionSpy.mockReturnValueOnce(undefined);
-          uniqueIdSpy.mockReturnValueOnce(undefined);
-          modelSpy.mockReturnValueOnce(undefined);
-
-          const params = {
-            getTotals: true,
-          };
-          const expectedHeaders = {
-            ...baseHeaders,
-            'x-janis-totals': true,
-          };
-
-          expect(getHeaders(params)).toStrictEqual(expectedHeaders);
-        });
-
-        it('should include getOnlyTotals header', () => {
-          buildNumberSpy.mockReturnValueOnce(undefined);
-          applicationNameSpy.mockReturnValueOnce(undefined);
-          versionSpy.mockReturnValueOnce(undefined);
-          bundleIdSpy.mockReturnValueOnce(undefined);
-          systemNameSpy.mockReturnValueOnce(undefined);
-          systemVersionSpy.mockReturnValueOnce(undefined);
-          uniqueIdSpy.mockReturnValueOnce(undefined);
-          modelSpy.mockReturnValueOnce(undefined);
-
-          const params = {
-            getOnlyTotals: true,
-          };
-          const expectedHeaders = {
-            ...baseHeaders,
-            'x-janis-only-totals': true,
-          };
-
-          expect(getHeaders(params)).toStrictEqual(expectedHeaders);
-        });
+    describe('isNumber returns a boolean', () => {
+      it('returns true if receive a valid number', () => {
+        expect(isNumber(10)).toBe(true);
       });
 
-      describe('CustomHeaders', () => {
-        it('should include all custom headers', () => {
-          buildNumberSpy.mockReturnValueOnce(undefined);
-          applicationNameSpy.mockReturnValueOnce(undefined);
-          versionSpy.mockReturnValueOnce(undefined);
-          bundleIdSpy.mockReturnValueOnce(undefined);
-          systemNameSpy.mockReturnValueOnce(undefined);
-          systemVersionSpy.mockReturnValueOnce(undefined);
-          uniqueIdSpy.mockReturnValueOnce(undefined);
-          modelSpy.mockReturnValueOnce(undefined);
+      it('otherwise returns false', () => {
+        expect(isNumber(null)).toBe(false);
+      });
+    });
 
-          const params = {
-            client: 'my-client',
-            accessToken: 'my-access-token',
-            page: 1,
-            pageSize: 10,
-            getTotals: true,
-            getOnlyTotals: true,
-          };
-          const customHeaders = {
-            'custom-header-1': 'value-1',
-            'custom-header-2': 'value-2',
-            'invalid-header': '',
-          };
-          const expectedHeaders = {
-            ...baseHeaders,
-            'janis-client': 'my-client',
-            'janis-api-secret': 'my-access-token',
-            'x-janis-page': 1,
-            'x-janis-page-size': 10,
-            'x-janis-totals': true,
-            'x-janis-only-totals': true,
-            'custom-header-1': 'value-1',
-            'custom-header-2': 'value-2',
-          };
+    describe('isBoolean returns a boolean', () => {
+      it('returns true if receive a valid number', () => {
+        expect(isBoolean(true)).toBe(true);
+      });
 
-          expect(getHeaders(params, customHeaders)).toStrictEqual(
-            expectedHeaders,
+      it('otherwise returns false', () => {
+        expect(isBoolean(null)).toBe(false);
+      });
+    });
+
+    describe('promiseWrapper', () => {
+      describe('return error', () => {
+        it('with promise called catch', async () => {
+          const promise = await promiseWrapper(
+            Promise.reject(new Error('called catch')),
           );
+          expect(promise).toEqual(expect.any(Array));
+          const [data, error] = promise;
+          expect(data).toBe(null);
+          expect(error).toEqual(expect.any(Object));
         });
       });
 
-      describe('DeviceHeaders', () => {
-        it('should handle empty device data headers and custom headers', () => {
-          buildNumberSpy.mockReturnValueOnce(undefined);
-          applicationNameSpy.mockReturnValueOnce(undefined);
-          versionSpy.mockReturnValueOnce(undefined);
-          bundleIdSpy.mockReturnValueOnce(undefined);
-          systemNameSpy.mockReturnValueOnce(undefined);
-          systemVersionSpy.mockReturnValueOnce(undefined);
-          uniqueIdSpy.mockReturnValueOnce(undefined);
-          modelSpy.mockReturnValueOnce(undefined);
-
-          const params = {
-            client: 'my-client',
-          };
-          const expectedHeaders = {
-            ...baseHeaders,
-            'janis-client': 'my-client',
-          };
-          expect(getHeaders(params, {})).toStrictEqual(expectedHeaders);
-        });
-
-        it('should not send user-agent when all headers are empty', () => {
-          buildNumberSpy.mockReturnValueOnce('');
-          applicationNameSpy.mockReturnValueOnce('');
-          versionSpy.mockReturnValueOnce('');
-          bundleIdSpy.mockReturnValueOnce('');
-          systemNameSpy.mockReturnValueOnce('');
-          systemVersionSpy.mockReturnValueOnce('');
-          uniqueIdSpy.mockReturnValueOnce('');
-          modelSpy.mockReturnValueOnce('');
-
-          const headers = getHeaders({});
-          expect(headers['user-agent']).toBe(undefined);
-        });
-
-        it('should include user-agent header with valid deviceDataHeaders', () => {
-          buildNumberSpy.mockReturnValueOnce('1');
-          applicationNameSpy.mockReturnValueOnce('MyApp');
-          versionSpy.mockReturnValueOnce('1.0.0');
-          bundleIdSpy.mockReturnValueOnce('janis.beta.app');
-          systemNameSpy.mockReturnValueOnce('iOS');
-          systemVersionSpy.mockReturnValueOnce('14.5');
-          uniqueIdSpy.mockReturnValueOnce('123456789');
-          modelSpy.mockReturnValueOnce('iPhone 12');
-
-          const expectedUserAgent =
-            'janis.beta.app/1.0.0 (MyApp; 1) iOS/14.5 (123456789; iPhone 12)';
-
-          const headers = getHeaders({});
-          expect(headers['user-agent']).toStrictEqual(expectedUserAgent);
-        });
-
-        it('should set user-agent unkown key when some key its not valid or missing', () => {
-          buildNumberSpy.mockReturnValueOnce('1');
-          applicationNameSpy.mockReturnValueOnce('MyApp');
-          versionSpy.mockReturnValueOnce('1.0.0');
-          bundleIdSpy.mockReturnValueOnce('janis.beta.app');
-          systemNameSpy.mockReturnValueOnce('iOS');
-          systemVersionSpy.mockReturnValueOnce('14.5');
-          uniqueIdSpy.mockReturnValueOnce('');
-          modelSpy.mockReturnValueOnce('');
-
-          const expectedHeaders = {
-            ...baseHeaders,
-            'user-agent':
-              'janis.beta.app/1.0.0 (MyApp; 1) iOS/14.5 (unknown janis-app-device-id; unknown janis-app-device-name)',
-            'janis-app-name': 'MyApp',
-            'janis-app-version': '1.0.0',
-            'janis-app-package-name': 'janis.beta.app',
-            'janis-app-build': '1',
-            'janis-app-device-os-name': 'iOS',
-            'janis-app-device-os-version': '14.5',
-          };
-
-          const headers = getHeaders({});
-          expect(headers).toStrictEqual(expectedHeaders);
-        });
-
-        it('should not include user-agent header when all keys are missing or are invlid', () => {
-          buildNumberSpy.mockReturnValueOnce('');
-          applicationNameSpy.mockReturnValueOnce('');
-          versionSpy.mockReturnValueOnce('');
-          bundleIdSpy.mockReturnValueOnce('');
-          systemNameSpy.mockReturnValueOnce('');
-          systemVersionSpy.mockReturnValueOnce('');
-          uniqueIdSpy.mockReturnValueOnce('');
-          modelSpy.mockReturnValueOnce('');
-
-          const headers = getHeaders({});
-
-          expect(headers['user-agent']).toBe(undefined);
-        });
-
-        it('should not include user-agent header with empty deviceDataHeaders', () => {
-          buildNumberSpy.mockReturnValueOnce('');
-          applicationNameSpy.mockReturnValueOnce('');
-          versionSpy.mockReturnValueOnce('');
-          bundleIdSpy.mockReturnValueOnce('');
-          systemNameSpy.mockReturnValueOnce('');
-          systemVersionSpy.mockReturnValueOnce('');
-          uniqueIdSpy.mockReturnValueOnce('');
-          modelSpy.mockReturnValueOnce('');
-
-          const headers = getHeaders({});
-
-          expect(headers['user-agent']).toBe(undefined);
-        });
-      });
-    });
-
-    describe('getDeviceData returns an object', () => {
-      it('with default device data', () => {
-        buildNumberSpy.mockReturnValueOnce(undefined);
-        applicationNameSpy.mockReturnValueOnce(undefined);
-        versionSpy.mockReturnValueOnce(undefined);
-        bundleIdSpy.mockReturnValueOnce(undefined);
-        systemNameSpy.mockReturnValueOnce(undefined);
-        systemVersionSpy.mockReturnValueOnce(undefined);
-        uniqueIdSpy.mockReturnValueOnce(undefined);
-        modelSpy.mockReturnValueOnce(undefined);
-
-        const response = getDeviceData();
-        expect(response).toStrictEqual({
-          'janis-app-name': '',
-          'janis-app-build': '',
-          'janis-app-version': '',
-          'janis-app-package-name': '',
-          'janis-app-device-os-name': '',
-          'janis-app-device-os-version': '',
-          'janis-app-device-id': '',
-          'janis-app-device-name': '',
-        });
-      });
-
-      it('with formatted device data', () => {
-        buildNumberSpy.mockReturnValueOnce('1');
-        applicationNameSpy.mockReturnValueOnce('MyApp');
-        versionSpy.mockReturnValueOnce('1.0.0');
-        bundleIdSpy.mockReturnValueOnce('janis.beta.app');
-        systemNameSpy.mockReturnValueOnce('iOS');
-        systemVersionSpy.mockReturnValueOnce('14.5');
-        uniqueIdSpy.mockReturnValueOnce('123456789');
-        modelSpy.mockReturnValueOnce('iPhone 12');
-
-        const response = getDeviceData();
-        expect(response).toStrictEqual({
-          'janis-app-name': 'MyApp',
-          'janis-app-build': '1',
-          'janis-app-version': '1.0.0',
-          'janis-app-package-name': 'janis.beta.app',
-          'janis-app-device-os-name': 'iOS',
-          'janis-app-device-os-version': '14.5',
-          'janis-app-device-id': '123456789',
-          'janis-app-device-name': 'iPhone 12',
-        });
-      });
-    });
-    describe('formatDeviceDataForUserAgent', () => {
-      it('returns an empty object when any key is valid', () => {
-        const headers = {
-          'janis-app-package-name': '',
-          'janis-app-version': '',
-          'janis-app-name': '',
-          'janis-app-build': '',
-          'janis-app-device-os-name': '',
-          'janis-app-device-os-version': '',
-          'janis-app-device-id': '',
-          'janis-app-device-name': '',
-        };
-
-        expect(formatDeviceDataForUserAgent(headers)).toStrictEqual({});
-      });
-    });
-    describe('validateOauthData', () => {
-      describe('return false', () => {
-        it('when accessToken is null ', () => {
-          expect(validateOauthData(null, 'adf')).toBe(false);
-        });
-
-        it('when accessToken is invalid ', () => {
-          expect(validateOauthData([], 'adf')).toBe(false);
-        });
-
-        it('when client is null ', () => {
-          expect(validateOauthData('adsf', null)).toBe(false);
-        });
-
-        it('when client is invalid ', () => {
-          expect(validateOauthData('adsf', [])).toBe(false);
-        });
-      });
-
-      describe('return true', () => {
-        it('when arguments are valid ', () => {
-          expect(validateOauthData('adsf', 'fizzmod')).toBe(true);
+      describe('return data', () => {
+        it('with promise correct', async () => {
+          const prom = () =>
+            new Promise((resolve) => resolve({name: 'Janis Picking'}));
+          const promise = await promiseWrapper(prom());
+          const [data, error] = promise;
+          expect(promise).toEqual(expect.any(Array));
+          expect(data).toEqual(expect.any(Object));
+          expect(error).toBe(null);
         });
       });
     });

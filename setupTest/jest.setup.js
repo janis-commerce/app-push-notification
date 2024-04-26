@@ -10,6 +10,7 @@ jest.mock('react', () => {
     useState: jest.fn(react.useState),
     useEffect: jest.fn(react.useEffect),
     useContext: jest.fn(react.useContext),
+    useRef: jest.fn(react.useRef),
   };
 });
 
@@ -21,8 +22,8 @@ jest.mock('@react-native-firebase/messaging', () => ({
     onBackgroundMessage: jest.fn(),
     requestPermission: jest.fn(),
     hasPermission: jest.fn(),
-    subscribeToTopic: jest.fn(),
-    unsubscribeFromTopic: jest.fn(),
+    getInitialNotification: jest.fn(),
+    onNotificationOpenedApp: jest.fn(),
   })),
 }));
 
@@ -31,6 +32,13 @@ jest.mock(
   () =>
     require('@react-native-async-storage/async-storage/jest/async-storage-mock'), // eslint-disable-line global-require
 );
+
+jest.mock('@janiscommerce/app-request', () => ({
+  __esModule: true,
+  default: jest.fn().mockImplementation(() => ({
+    post: jest.fn(),
+  })),
+}));
 
 jest.mock('react-native-device-info', () => {
   const RNDeviceInfo = jest.requireActual(
