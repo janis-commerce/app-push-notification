@@ -1,8 +1,8 @@
-name: NPM Publish Beta
+name: NPM Publish
 
 on:
   push:
-    tags: ['*.*.*-beta.*']
+    tags: [ '*' ]
 
 jobs:
   build:
@@ -25,7 +25,7 @@ jobs:
           node-version: 14
           registry-url: https://registry.npmjs.org/
       - run: npm i
-      - run: npm publish --tag beta --access public
+      - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
 
