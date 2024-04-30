@@ -74,6 +74,10 @@ For more information about this, read https://rnfirebase.io/reference/messaging/
 <td>This function allows you to add a new event to receive notifications.</td>
 </tr>
 <tr>
+<td>deleteReceivedNotification</td>
+<td>An util that clears the foreground or background notification state to the depending on the type it receives by parameter</td>
+</tr>
+<tr>
 <td>getSubscribedEvents</td>
 <td>This function returns an array with the events to which the user is subscribed.</td>
 </tr>
@@ -136,6 +140,7 @@ is a hook, which returns the elements contained within the notifications context
  | subscribeError | An object containing all data received from a notification service subscription failure. |
  | cancelNotifications | This util is responsible for making the request to unsubscribe from all notification events. If no arguments are received, the request will be made with the previously registered events. |
  | addNewEvent | This function allows you to add a new event to receive notifications. |
+ | deleteReceivedNotification | An util that clears the foreground or background notification state to the depending on the type it receives by parameter
  | getSubscribedEvents | This function returns an array with the events to which the user is subscribed. |
 
 **Kind**: global function  

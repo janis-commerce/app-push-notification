@@ -97,6 +97,13 @@ describe('utils', () => {
         expect(mockBackgroundMessageHandler).toHaveBeenCalledTimes(1);
         expect(mockCallback).toHaveBeenCalledWith(fakeRemoteMessage);
       });
+      it('calls setBackgroundMessageHandler with remoteMessage', () => {
+        setupBackgroundMessageHandler();
+
+        mockBackgroundMessageHandler.mock.calls[0][0](fakeRemoteMessage);
+
+        expect(mockBackgroundMessageHandler).toHaveBeenCalledTimes(1);
+      });
     });
 
     describe('setupNotificationOpenedHandler provides the listener that listens for the opening of the app from the background through a notification', () => {
