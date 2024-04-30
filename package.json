@@ -1,6 +1,6 @@
 {
   "name": "@janiscommerce/app-push-notification",
-  "version": "0.0.1-beta.1",
+  "version": "0.0.1",
   "type": "commonjs",
   "description": "This package will take care of performing the main actions for registration to receive notifications in the foreground and background.",
   "main": "lib/index.js",
@@ -73,7 +73,6 @@
     "react-native": "^0.67.5",
     "react-native-device-info": "^8.5.0",
     "react-test-renderer": "^17.0.2"
-    
   },
   "bugs": {
     "url": "https://github.com/janis-commerce/app-push-notification/issues"
