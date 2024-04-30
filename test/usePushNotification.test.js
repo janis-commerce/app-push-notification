@@ -234,65 +234,71 @@ describe('usePushNotification hook', () => {
     describe('deleteReceivedNotification util', () => {
       describe('should remove the information of the selected notification type from the notification status', () => {
         const mockState = {
-          foregroundNotification:{data:{},notification:{}},
-          backgroundNotification:{data:{},notification:{}},
+          foregroundNotification: {data: {}, notification: {}},
+          backgroundNotification: {data: {}, notification: {}},
           deviceToken: 'fcmToken',
-          pushEvents: ['picking:session:created']
-        }
+          pushEvents: ['picking:session:created'],
+        };
 
         it('if the selected type is foreground then should reset the foreground notification information', () => {
-          useState.mockReturnValueOnce([mockState,mockSetState]);
-        
+          useState.mockReturnValueOnce([mockState, mockSetState]);
+
           const {result} = renderHook(() =>
-          usePushNotification(
-            'local',
-            ['picking:session:created'],
-            'PickingApp',
-            {current: false},
+            usePushNotification(
+              'local',
+              ['picking:session:created'],
+              'PickingApp',
+              {current: false},
             ),
           );
           const {deleteReceivedNotification} = result.current;
-          deleteReceivedNotification({type:'foreground'})
+          deleteReceivedNotification({type: 'foreground'});
 
-          expect(mockSetState).toHaveBeenCalledWith({...mockState,foregroundNotification:{}})
-        })
+          expect(mockSetState).toHaveBeenCalledWith({
+            ...mockState,
+            foregroundNotification: {},
+          });
+        });
 
         it('if the selected type is background then should reset the background notification information', () => {
-          useState.mockReturnValueOnce([mockState,mockSetState]);
-        
+          useState.mockReturnValueOnce([mockState, mockSetState]);
+
           const {result} = renderHook(() =>
-          usePushNotification(
-            'local',
-            ['picking:session:created'],
-            'PickingApp',
-            {current: false},
+            usePushNotification(
+              'local',
+              ['picking:session:created'],
+              'PickingApp',
+              {current: false},
             ),
           );
           const {deleteReceivedNotification} = result.current;
 
-          deleteReceivedNotification({type:'background'})
+          deleteReceivedNotification({type: 'background'});
 
-          expect(mockSetState).toHaveBeenCalledWith({...mockState,backgroundNotification:{}})
-        })
+          expect(mockSetState).toHaveBeenCalledWith({
+            ...mockState,
+            backgroundNotification: {},
+          });
+        });
 
         it('if type is not pass return null', () => {
-          useState.mockReturnValueOnce([mockState,mockSetState]);
-        
+          useState.mockReturnValueOnce([mockState, mockSetState]);
+
           const {result} = renderHook(() =>
-          usePushNotification(
-            'local',
-            ['picking:session:created'],
-            'PickingApp',
-            {current: false},
+            usePushNotification(
+              'local',
+              ['picking:session:created'],
+              'PickingApp',
+              {current: false},
             ),
           );
           const {deleteReceivedNotification} = result.current;
 
-          deleteReceivedNotification()
+          deleteReceivedNotification();
 
-          expect(mockSetState).not.toHaveBeenCalled()
-        })
-      })
-    })
+          expect(mockSetState).not.toHaveBeenCalled();
+        });
+      });
+    });
   });
 });
