@@ -2,11 +2,17 @@ import {useState} from 'react';
 import {renderHook} from '@testing-library/react-native';
 import usePushNotification from '../lib/usePushNotification';
 import * as UnSubscribeNotifications from '../lib/utils/api/UnSubscribeNotifications';
+import * as SubscribeNotifications from '../lib/utils/api/SubscribeNotifications';
 import {promiseWrapper} from '../lib/utils';
 
 describe('usePushNotification hook', () => {
   const spyUnSubscribeNotifications = jest.spyOn(
     UnSubscribeNotifications,
+    'default',
+  );
+
+  const spySubscribeNotifications = jest.spyOn(
+    SubscribeNotifications,
     'default',
   );
 
@@ -37,6 +43,61 @@ describe('usePushNotification hook', () => {
   });
 
   describe('the object contains:', () => {
+    describe('updateSuscription util', () => {
+      it('this util call the api to suscribe to notifications service', async () => {
+        spySubscribeNotifications.mockResolvedValueOnce({result: {}});
+        useState.mockReturnValueOnce([
+          {
+            ...initialState,
+            deviceToken: 'fcmToken',
+            pushEvents: ['picking:session:created'],
+          },
+          mockSetState,
+        ]);
+
+        const {result} = renderHook(() =>
+          usePushNotification(
+            'local',
+            ['picking:session:created'],
+            'PickingApp',
+            {current: false},
+          ),
+        );
+        const {updateSuscription} = result.current;
+
+        const [response] = await promiseWrapper(
+          updateSuscription({language: 'en-US'}),
+        );
+
+        await expect(response).toStrictEqual({result: {}});
+      });
+
+      it('this util returns an error when the suscription has an error', async () => {
+        spySubscribeNotifications.mockRejectedValueOnce({message: 'error'});
+        useState.mockReturnValueOnce([
+          {
+            ...initialState,
+            deviceToken: 'fcmToken',
+            pushEvents: ['picking:session:created'],
+          },
+          mockSetState,
+        ]);
+
+        const {result} = renderHook(() =>
+          usePushNotification(
+            'local',
+            ['picking:session:created'],
+            'PickingApp',
+            {current: false},
+          ),
+        );
+        const {updateSuscription} = result.current;
+
+        const [, response] = await promiseWrapper(updateSuscription());
+
+        await expect(response).toStrictEqual({message: 'error'});
+      });
+    });
     describe('cancelNotifications util', () => {
       it('this utils call the api and cancel the subscription to event passed an arguments or all events', async () => {
         spyUnSubscribeNotifications.mockResolvedValueOnce({result: {}});
