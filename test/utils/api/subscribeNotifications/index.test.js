@@ -70,7 +70,12 @@ describe('SubscribeNotifications', () => {
 
       nock(server).post('/subscribe/push').reply(200, {});
 
-      const response = await SubscribeNotifications(validParams);
+      const response = await SubscribeNotifications({
+        ...validParams,
+        additionalInfo: {
+          language: 'en-US',
+        },
+      });
 
       expect(response).toStrictEqual({result: {}});
     });
