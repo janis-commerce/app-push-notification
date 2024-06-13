@@ -1,8 +1,18 @@
 # Changelog
 
-[Unreleased]
+## [Unreleased]
 
-## [0.0.1] - 2024-05-03
+### Added
+
+- Added notification channels
+
+## [0.0.3] - 2024-06-13
+
+### Added
+
+- additional info to send in subscription
+
+## [0.0.2] - 2024-05-03
 
 ### Added
 

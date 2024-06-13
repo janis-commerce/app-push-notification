@@ -34,7 +34,7 @@ For more information about this, read https://rnfirebase.io/reference/messaging/
 ## Functions
 
 <dl>
-<dt><a href="#NotificationProvider">NotificationProvider(children, appName, events, environment, channelConfigs)</a> ⇒ <code>null</code> | <code>React.element</code></dt>
+<dt><a href="#NotificationProvider">NotificationProvider(children, appName, events, environment, additionalInfo, channelConfigs)</a> ⇒ <code>null</code> | <code>React.element</code></dt>
 <dd><p>It is the main component of the package, it is a HOC that is responsible for handling the logic of subscribing to notifications and receiving messages from the Firebase console. The HOC contains listeners to listen to notifications in the foreground and background, so (unless we cancel the subscription), we will receive notifications from the app even when it is closed.</p>
 </dd>
 <dt><a href="#setupBackgroundMessageHandler">setupBackgroundMessageHandler(callback)</a></dt>
@@ -70,6 +70,10 @@ For more information about this, read https://rnfirebase.io/reference/messaging/
 <td>This util is responsible for making the request to unsubscribe from all notification events. If no arguments are received, the request will be made with the previously registered events.</td>
 </tr>
 <tr>
+<td>updateSuscription</td>
+<td>This function is responsible for updating the subscription to the notification service</td>
+</tr>
+<tr>
 <td>addNewEvent</td>
 <td>This function allows you to add a new event to receive notifications.</td>
 </tr>
@@ -87,7 +91,7 @@ For more information about this, read https://rnfirebase.io/reference/messaging/
 
 <a name="NotificationProvider"></a>
 
-## NotificationProvider(children, appName, events, environment, channelConfigs) ⇒ <code>null</code> \| <code>React.element</code>
+## NotificationProvider(children, appName, events, environment, additionalInfo, channelConfigs) ⇒ <code>null</code> \| <code>React.element</code>
 It is the main component of the package, it is a HOC that is responsible for handling the logic of subscribing to notifications and receiving messages from the Firebase console. The HOC contains listeners to listen to notifications in the foreground and background, so (unless we cancel the subscription), we will receive notifications from the app even when it is closed.
 
 **Kind**: global function  
@@ -102,6 +106,7 @@ It is the main component of the package, it is a HOC that is responsible for han
 | appName | <code>string</code> | name of the aplication |
 | events | <code>Array.&lt;string&gt;</code> | is an array that will contain the events to which the user wants to subscribe |
 | environment | <code>string</code> | The environment is necessary for the API that we are going to use to subscribe the device to notifications. |
+| additionalInfo | <code>object</code> | fields to be sent as part of the body of the subscription request |
 | channelConfigs | <code>Array.&lt;(string\|object)&gt;</code> | is the configuration that will be used to create new notification channels |
 
 **Example**  
@@ -140,6 +145,7 @@ is a hook, which returns the elements contained within the notifications context
  | backgroundNotification | An object containing all data received when a background push notification is triggered. |
  | subscribeError | An object containing all data received from a notification service subscription failure. |
  | cancelNotifications | This util is responsible for making the request to unsubscribe from all notification events. If no arguments are received, the request will be made with the previously registered events. |
+ | updateSuscription | This function is responsible for updating the subscription to the notification service |
  | addNewEvent | This function allows you to add a new event to receive notifications. |
  | deleteReceivedNotification | An util that clears the foreground or background notification state to the depending on the type it receives by parameter
  | getSubscribedEvents | This function returns an array with the events to which the user is subscribed. |
