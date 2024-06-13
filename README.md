@@ -34,7 +34,7 @@ For more information about this, read https://rnfirebase.io/reference/messaging/
 ## Functions
 
 <dl>
-<dt><a href="#NotificationProvider">NotificationProvider(children, appName, events, environment)</a> ⇒ <code>null</code> | <code>React.element</code></dt>
+<dt><a href="#NotificationProvider">NotificationProvider(children, appName, events, environment, channelConfigs)</a> ⇒ <code>null</code> | <code>React.element</code></dt>
 <dd><p>It is the main component of the package, it is a HOC that is responsible for handling the logic of subscribing to notifications and receiving messages from the Firebase console. The HOC contains listeners to listen to notifications in the foreground and background, so (unless we cancel the subscription), we will receive notifications from the app even when it is closed.</p>
 </dd>
 <dt><a href="#setupBackgroundMessageHandler">setupBackgroundMessageHandler(callback)</a></dt>
@@ -87,7 +87,7 @@ For more information about this, read https://rnfirebase.io/reference/messaging/
 
 <a name="NotificationProvider"></a>
 
-## NotificationProvider(children, appName, events, environment) ⇒ <code>null</code> \| <code>React.element</code>
+## NotificationProvider(children, appName, events, environment, channelConfigs) ⇒ <code>null</code> \| <code>React.element</code>
 It is the main component of the package, it is a HOC that is responsible for handling the logic of subscribing to notifications and receiving messages from the Firebase console. The HOC contains listeners to listen to notifications in the foreground and background, so (unless we cancel the subscription), we will receive notifications from the app even when it is closed.
 
 **Kind**: global function  
@@ -102,6 +102,7 @@ It is the main component of the package, it is a HOC that is responsible for han
 | appName | <code>string</code> | name of the aplication |
 | events | <code>Array.&lt;string&gt;</code> | is an array that will contain the events to which the user wants to subscribe |
 | environment | <code>string</code> | The environment is necessary for the API that we are going to use to subscribe the device to notifications. |
+| channelConfigs | <code>Array.&lt;(string\|object)&gt;</code> | is the configuration that will be used to create new notification channels |
 
 **Example**  
 ```js

@@ -40,6 +40,17 @@ jest.mock('@janiscommerce/app-request', () => ({
   })),
 }));
 
+jest.mock('@notifee/react-native', () => ({
+  __esModule: true,
+  default: {
+    createChannel: jest.fn(),
+    createChannels: jest.fn(),
+  },
+  AndroidImportance: {
+    HIGH: 4,
+  },
+}));
+
 jest.mock('react-native-device-info', () => {
   const RNDeviceInfo = jest.requireActual(
     'react-native-device-info/jest/react-native-device-info-mock',

@@ -74,13 +74,24 @@ describe('NotificationWrapper', () => {
         useRefSpy.mockReturnValueOnce({current: false});
         spySubscribeNotification.mockResolvedValueOnce({result: {}});
 
-        jest.spyOn(React, 'useEffect').mockImplementationOnce((f) => f());
+        jest
+          .spyOn(React, 'useEffect')
+          .mockImplementationOnce((f) => f())
+          .mockImplementationOnce((f) => f());
 
         testRenderer.create(
           <NotificationProvider
             appName="PickingApp"
             events={['picking', 'notifications', 'janis']}
-            environment="beta">
+            environment="beta"
+            channelConfigs={[
+              'channel',
+              {
+                name: 'common channel 2',
+                id: 'channel_2',
+                description: 'second channel',
+              },
+            ]}>
             <View />
           </NotificationProvider>,
         );
@@ -99,7 +110,10 @@ describe('NotificationWrapper', () => {
         useRefSpy.mockReturnValueOnce({current: false});
         spySubscribeNotification.mockRejectedValueOnce({message: 'error'});
 
-        jest.spyOn(React, 'useEffect').mockImplementationOnce((f) => f());
+        jest
+          .spyOn(React, 'useEffect')
+          .mockImplementationOnce((f) => f())
+          .mockImplementationOnce((f) => f());
 
         spyGetToken.mockReturnValueOnce('fcmToken');
 
@@ -107,7 +121,8 @@ describe('NotificationWrapper', () => {
           <NotificationProvider
             appName="PickingApp"
             events={['picking', 'notifications', 'janis']}
-            environment="beta">
+            environment="beta"
+            channelConfigs={{}}>
             <View />
           </NotificationProvider>,
         );
