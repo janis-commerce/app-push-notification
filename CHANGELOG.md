@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.0.4] - 2024-06-25
+
 ### Added
 
 - Added notification channels
