@@ -47,7 +47,15 @@ jest.mock('@notifee/react-native', () => ({
     createChannels: jest.fn(),
   },
   AndroidImportance: {
+    MIN: 1,
+    LOW: 2,
+    DEFAULT: 3,
     HIGH: 4,
+  },
+  AndroidVisibility: {
+    PUBLIC: 1,
+    PRIVATE: 0,
+    SECRET: -1,
   },
 }));
 

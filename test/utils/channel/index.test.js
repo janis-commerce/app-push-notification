@@ -1,4 +1,7 @@
-import notifee from '@notifee/react-native';
+import notifee, {
+  AndroidImportance,
+  AndroidVisibility,
+} from '@notifee/react-native';
 import {promiseWrapper} from '../../../lib/utils';
 import {
   makeDefaultChannel,
@@ -7,6 +10,7 @@ import {
   parseChannelConfiguration,
   parseNotificationChannel,
 } from '../../../lib/utils/channel';
+import DEFAULT_CHANNEL_CONFIGS from '../../../lib/constants/defaultChannelConfigs';
 
 const validChannel = {
   id: 'channel_id',
@@ -44,6 +48,7 @@ describe('channel utils', () => {
         const response = parseChannelConfiguration(validChannel);
 
         expect(response).toStrictEqual({
+          ...DEFAULT_CHANNEL_CONFIGS,
           id: 'channel_id',
           name: 'channel',
           description: 'notification channel',
@@ -54,10 +59,39 @@ describe('channel utils', () => {
         const response = parseChannelConfiguration({name: 'channel'});
 
         expect(response).toStrictEqual({
+          ...DEFAULT_CHANNEL_CONFIGS,
           id: 'channel',
           name: 'channel',
           importance: 4,
         });
+      });
+    });
+
+    it('creates a channel that replaces all default values', () => {
+      const response = parseChannelConfiguration({
+        id: 'channel_id',
+        name: 'channel',
+        description: 'notification channel',
+        importance: AndroidImportance.LOW,
+        vibration: false,
+        lights: false,
+        sound: undefined,
+        vibrationPattern: [1000],
+        visibility: AndroidVisibility.PRIVATE,
+      });
+
+      console.log('response', response);
+
+      expect(response).toStrictEqual({
+        ...DEFAULT_CHANNEL_CONFIGS,
+        id: 'channel_id',
+        name: 'channel',
+        description: 'notification channel',
+        vibration: false,
+        lights: false,
+        sound: undefined,
+        vibrationPattern: [1000],
+        visibility: AndroidVisibility.PRIVATE,
       });
     });
   });
@@ -73,12 +107,14 @@ describe('channel utils', () => {
       const parsedChannel2 = parseNotificationChannel(validChannel);
 
       expect(parsedChannel1).toStrictEqual({
+        ...DEFAULT_CHANNEL_CONFIGS,
         name: 'channel',
         id: 'channel',
         importance: 4,
       });
 
       expect(parsedChannel2).toStrictEqual({
+        ...DEFAULT_CHANNEL_CONFIGS,
         id: 'channel_id',
         name: 'channel',
         description: 'notification channel',
