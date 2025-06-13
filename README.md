@@ -29,6 +29,31 @@ Inside remoteMessage you get the notifications object that contains the informat
 
 For more information about this, read https://rnfirebase.io/reference/messaging/remotemessage
 
+## Customize background notification sound:
+
+To customize the background notification sound, you can pass the `backgroundNotificationSound` parameter to the `NotificationProvider` component. By default, it uses the 'default' sound.
+
+```javascript
+import NotificationProvider from '@janiscommerce/app-push-notification'
+
+return (
+ <NotificationProvider
+   appName='pickingApp'
+   events={["picking:session:created","picking:session:assigned"]}
+   environment='beta'
+   backgroundNotificationSound='custom_sound' // Custom sound file name
+   >
+   <MyComponent/>
+ </NotificationProvider>
+)
+```
+
+To use a custom sound on Android, you must:
+1. Place the sound file in the `android/app/src/main/res/raw/` folder
+2. The file name must be lowercase and without special characters
+3. The sound file must be in .mp3, .wav, or .aac format
+4. Pass the exactly file name (without extension) as the value of `backgroundNotificationSound`
+
 # This library provides the following components and methods:
 
 ## Functions
