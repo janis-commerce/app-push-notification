@@ -122,7 +122,8 @@ describe('NotificationWrapper', () => {
             appName="PickingApp"
             events={['picking', 'notifications', 'janis']}
             environment="beta"
-            channelConfigs={{}}>
+            channelConfigs={{}}
+            backgroundNotificationSound="test">
             <View />
           </NotificationProvider>,
         );

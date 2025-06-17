@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.0.5] - 2025-06-17
+
+### Added
+
+- Sound to notifications
+
 ## [0.0.4] - 2024-06-25
 
 ### Added
