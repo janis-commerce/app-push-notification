@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.0.6] - 2025-07-13
+
+### Added
+
+- cancelNotificationSuscription method
+
 ## [0.0.5] - 2025-06-17
 
 ### Added

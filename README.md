@@ -92,7 +92,7 @@ To use a custom sound on Android, you must:
 </tr>
 <tr>
 <td>cancelNotifications</td>
-<td>This util is responsible for making the request to unsubscribe from all notification events. If no arguments are received, the request will be made with the previously registered events. <em>⚠️ Deprecated: Use cancelNotificationsSuscription instead.</em></td>
+<td>This util is responsible for making the request to unsubscribe from all notification events. If no arguments are received, the request will be made with the previously registered events. <em>⚠️ Deprecated: Use cancelNotificationsSubscription instead.</em></td>
 </tr>
 <tr>
 <td>updateSuscription</td>
