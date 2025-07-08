@@ -1,9 +1,9 @@
 import nock from 'nock';
 import Request from '@janiscommerce/app-request';
-import cancelNotificationsSuscription from '../../../../lib/utils/api/cancelNotificationsSuscription';
+import cancelNotificationsSubscription from '../../../../lib/utils/api/cancelNotificationsSubscription';
 import {promiseWrapper} from '../../../../lib/utils';
 
-describe('cancelNotificationsSuscription', () => {
+describe('cancelNotificationsSubscription', () => {
   const RequestInstance = new Request({JANIS_ENV: 'local'});
   const postSpy = jest.spyOn(RequestInstance, 'post');
 
@@ -14,14 +14,14 @@ describe('cancelNotificationsSuscription', () => {
 
   describe('returns an error', () => {
     it('when not receive a valid object as argument', async () => {
-      await expect(cancelNotificationsSuscription()).rejects.toThrow(
+      await expect(cancelNotificationsSubscription()).rejects.toThrow(
         'invalid environment',
       );
     });
 
     it('when not receive a valid environment as argument', async () => {
       const {env, ...rest} = validParams;
-      await expect(cancelNotificationsSuscription(rest)).rejects.toThrow(
+      await expect(cancelNotificationsSubscription(rest)).rejects.toThrow(
         'invalid environment',
       );
     });
@@ -29,38 +29,38 @@ describe('cancelNotificationsSuscription', () => {
     it('when receive empty environment string', async () => {
       const {env, ...rest} = validParams;
       await expect(
-        cancelNotificationsSuscription({...rest, env: ''}),
+        cancelNotificationsSubscription({...rest, env: ''}),
       ).rejects.toThrow('invalid environment');
     });
 
     it('when receive null environment', async () => {
       const {env, ...rest} = validParams;
       await expect(
-        cancelNotificationsSuscription({...rest, env: null}),
+        cancelNotificationsSubscription({...rest, env: null}),
       ).rejects.toThrow('invalid environment');
     });
 
     it('when receive undefined environment', async () => {
       const {env, ...rest} = validParams;
       await expect(
-        cancelNotificationsSuscription({...rest, env: undefined}),
+        cancelNotificationsSubscription({...rest, env: undefined}),
       ).rejects.toThrow('invalid environment');
     });
   });
 
-  describe('cancel notifications suscription', () => {
+  describe('cancel notifications subscription', () => {
     afterEach(() => {
       nock.cleanAll();
     });
     const server = `https://notifications.local.in/api`;
 
     it('api responses correctly', async () => {
-      postSpy.mockResolvedValueOnce({result: {}});
+      postSpy.mockResolvedValueOnce({result: undefined});
 
-      nock(server).post('/unsubscribe/push').reply(200, {success: true});
+      nock(server).post('/unsubscribe/push').reply(200, undefined);
 
       const [response] = await promiseWrapper(
-        cancelNotificationsSuscription({
+        cancelNotificationsSubscription({
           ...validParams,
           events: ['picking', 'delivery'],
         }),
