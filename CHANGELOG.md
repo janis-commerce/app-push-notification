@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.0.7] - 2025-07-23
+
+### Fixed
+
+- The subscription request is only made when the user is not subscribed.
+
 ## [0.0.6] - 2025-07-13
 
 ### Added
