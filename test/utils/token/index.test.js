@@ -50,8 +50,8 @@ describe('Token utils', () => {
   });
 
   describe('updateStoredToken', () => {
-    it('should update the stored token', () => {
-      const token = updateStoredToken('testToken');
+    it('should update the stored token', async () => {
+      const token = await updateStoredToken('testToken');
       expect(token).toBeDefined();
       expect(setItemSpy).toHaveBeenCalledWith('currentToken', 'testToken');
     });
