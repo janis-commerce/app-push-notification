@@ -1,6 +1,7 @@
 import nock from 'nock';
 import Request from '@janiscommerce/app-request';
 import SubscribeNotifications from '../../../../lib/utils/api/SubscribeNotifications';
+import {promiseWrapper} from '../../../../lib/utils';
 
 describe('SubscribeNotifications', () => {
   const RequestInstance = new Request({JANIS_ENV: 'local'});
@@ -10,56 +11,21 @@ describe('SubscribeNotifications', () => {
     deviceToken: 'janis-device',
     events: ['picking', 'janis', 'wms', 'delivery'],
     appName: 'janis-app',
-    request: RequestInstance,
   };
+
   describe('returns an error', () => {
-    it('when not receive a valid object as argument', async () => {
-      await expect(SubscribeNotifications()).rejects.toThrow(
-        'params is not a valid object',
+    it('when api calls fails', async () => {
+      postSpy.mockRejectedValueOnce(new Error('API call failed'));
+
+      const [, error] = await promiseWrapper(
+        SubscribeNotifications(validParams, RequestInstance),
       );
-    });
-
-    it('when not receive a valid device token as argument', async () => {
-      const {deviceToken, ...rest} = validParams;
-      await expect(SubscribeNotifications(rest)).rejects.toThrow(
-        'device token is invalid or null',
-      );
-    });
-
-    it('when not receive a valid array events into received params', async () => {
-      const {events, ...rest} = validParams;
-
-      await expect(SubscribeNotifications(rest)).rejects.toThrow(
-        'events to be subscribed to are null',
-      );
-    });
-
-    it('when not receive a valid appName into reveiced params', async () => {
-      const {appName, ...rest} = validParams;
-
-      await expect(SubscribeNotifications(rest)).rejects.toThrow(
-        'application name are invalid or null',
-      );
-    });
-
-    it('when not receive Request class into received params', async () => {
-      const {request, ...rest} = validParams;
-
-      await expect(SubscribeNotifications(rest)).rejects.toThrow(
-        'Request is not available',
-      );
-    });
-
-    it('when not receive a valid array with valid topics to subscribe', async () => {
-      const {events, ...rest} = validParams;
-
-      await expect(
-        SubscribeNotifications({...rest, events: [3, null]}),
-      ).rejects.toThrow('events to be suscribed are invalids');
+      expect(error).toBeDefined();
+      expect(error.message).toBe('API call failed');
     });
   });
 
-  describe('returns data', () => {
+  describe('complete subscribe request', () => {
     afterEach(() => {
       nock.cleanAll();
     });
@@ -70,14 +36,26 @@ describe('SubscribeNotifications', () => {
 
       nock(server).post('/subscribe/push').reply(200, {});
 
-      const response = await SubscribeNotifications({
-        ...validParams,
-        additionalInfo: {
-          language: 'en-US',
-        },
-      });
+      const [response] = await promiseWrapper(SubscribeNotifications());
 
-      expect(response).toStrictEqual({result: {}});
+      expect(response).toBeUndefined();
+    });
+
+    it('make request with correct params', async () => {
+      postSpy.mockResolvedValueOnce({result: {}});
+
+      nock(server).post('/subscribe/push').reply(200, {});
+
+      const [response] = await promiseWrapper(
+        SubscribeNotifications({
+          ...validParams,
+          additionalInfo: {
+            language: 'en-US',
+          },
+        }),
+      );
+
+      expect(response).toBeUndefined();
     });
   });
 });

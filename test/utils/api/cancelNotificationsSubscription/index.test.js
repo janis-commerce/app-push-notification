@@ -13,38 +13,14 @@ describe('cancelNotificationsSubscription', () => {
   };
 
   describe('returns an error', () => {
-    it('when not receive a valid object as argument', async () => {
-      await expect(cancelNotificationsSubscription()).rejects.toThrow(
-        'invalid environment',
+    it('when api calls fails', async () => {
+      postSpy.mockRejectedValueOnce(new Error('API call failed'));
+
+      const [, error] = await promiseWrapper(
+        cancelNotificationsSubscription(validParams, RequestInstance),
       );
-    });
-
-    it('when not receive a valid environment as argument', async () => {
-      const {env, ...rest} = validParams;
-      await expect(cancelNotificationsSubscription(rest)).rejects.toThrow(
-        'invalid environment',
-      );
-    });
-
-    it('when receive empty environment string', async () => {
-      const {env, ...rest} = validParams;
-      await expect(
-        cancelNotificationsSubscription({...rest, env: ''}),
-      ).rejects.toThrow('invalid environment');
-    });
-
-    it('when receive null environment', async () => {
-      const {env, ...rest} = validParams;
-      await expect(
-        cancelNotificationsSubscription({...rest, env: null}),
-      ).rejects.toThrow('invalid environment');
-    });
-
-    it('when receive undefined environment', async () => {
-      const {env, ...rest} = validParams;
-      await expect(
-        cancelNotificationsSubscription({...rest, env: undefined}),
-      ).rejects.toThrow('invalid environment');
+      expect(error).toBeDefined();
+      expect(error.message).toBe('API call failed');
     });
   });
 
@@ -67,6 +43,17 @@ describe('cancelNotificationsSubscription', () => {
       );
 
       await expect(response).toBeUndefined();
+    });
+    it('make request with default params', async () => {
+      postSpy.mockResolvedValueOnce({result: undefined});
+
+      nock(server).post('/unsubscribe/push').reply(200, undefined);
+
+      const [response] = await promiseWrapper(
+        cancelNotificationsSubscription(),
+      );
+
+      expect(response).toBeUndefined();
     });
   });
 });

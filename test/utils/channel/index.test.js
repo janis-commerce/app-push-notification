@@ -80,8 +80,6 @@ describe('channel utils', () => {
         visibility: AndroidVisibility.PRIVATE,
       });
 
-      console.log('response', response);
-
       expect(response).toStrictEqual({
         ...DEFAULT_CHANNEL_CONFIGS,
         id: 'channel_id',

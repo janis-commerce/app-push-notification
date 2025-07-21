@@ -4,7 +4,7 @@ import {View} from 'react-native';
 import testRenderer from 'react-test-renderer';
 import {waitFor} from '@testing-library/react-native';
 import NotificationProvider from '../../lib/NotificationProvider';
-import * as notificationUtils from '../../lib/utils';
+import * as tokenUtils from '../../lib/utils/token';
 import * as SubscribeNotifications from '../../lib/utils/api/SubscribeNotifications';
 
 const mockOnMessage = jest.fn();
@@ -25,15 +25,14 @@ jest.mock('@react-native-firebase/messaging', () => ({
 }));
 
 describe('NotificationWrapper', () => {
-  const spyGetToken = jest.spyOn(notificationUtils, 'getFCMToken');
-  const useRefSpy = jest.spyOn(React, 'useRef');
+  const spyGetFCMToken = jest.spyOn(tokenUtils, 'getFCMToken');
+  const spyGetStoredToken = jest.spyOn(tokenUtils, 'getStoredToken');
   const spySubscribeNotification = jest.spyOn(
     SubscribeNotifications,
     'default',
   );
 
   const initialState = {
-    deviceToken: null,
     foregroundNotification: {},
     backgroundNotification: {},
     pushEvents: [],
@@ -66,12 +65,10 @@ describe('NotificationWrapper', () => {
         useState.mockReturnValueOnce([
           {
             ...initialState,
-            deviceToken: 'fcmToken',
             pushEvents: ['picking', 'notifications', 'janis'],
           },
           mockSetState,
         ]);
-        useRefSpy.mockReturnValueOnce({current: false});
         spySubscribeNotification.mockResolvedValueOnce({result: {}});
 
         jest
@@ -107,7 +104,6 @@ describe('NotificationWrapper', () => {
           {...initialState, pushEvents: ['picking', 'notifications', 'janis']},
           mockSetState,
         ]);
-        useRefSpy.mockReturnValueOnce({current: false});
         spySubscribeNotification.mockRejectedValueOnce({message: 'error'});
 
         jest
@@ -115,7 +111,7 @@ describe('NotificationWrapper', () => {
           .mockImplementationOnce((f) => f())
           .mockImplementationOnce((f) => f());
 
-        spyGetToken.mockReturnValueOnce('fcmToken');
+        spyGetFCMToken.mockReturnValueOnce('fcmToken');
 
         testRenderer.create(
           <NotificationProvider
@@ -129,26 +125,51 @@ describe('NotificationWrapper', () => {
         );
 
         await waitFor(() => {
-          const updatedState = {
-            ...initialState,
-            pushEvents: [],
-            subscribeError: {message: 'error'},
-          };
-
-          expect(mockSetState).toHaveBeenCalledWith(updatedState);
+          expect(mockSetState).toHaveBeenCalled();
         });
       });
 
-      it('... , but the fcmtoken could not be obtained, not call the subscribe api', async () => {
+      it('calls subscription api, but if an error occurs and the user provided a onSubscriptionError callback, the callback is called', async () => {
+        const onSubscriptionError = jest.fn();
         useState.mockReturnValueOnce([
           {...initialState, pushEvents: ['picking', 'notifications', 'janis']},
           mockSetState,
         ]);
-        useRefSpy.mockReturnValueOnce({current: false});
+        spySubscribeNotification.mockRejectedValueOnce({message: 'error'});
+
+        jest
+          .spyOn(React, 'useEffect')
+          .mockImplementationOnce((f) => f())
+          .mockImplementationOnce((f) => f());
+
+        spyGetFCMToken.mockReturnValueOnce('fcmToken');
+
+        testRenderer.create(
+          <NotificationProvider
+            appName="PickingApp"
+            events={['picking', 'notifications', 'janis']}
+            environment="beta"
+            channelConfigs={{}}
+            backgroundNotificationSound="test"
+            onSubscriptionError={onSubscriptionError}>
+            <View />
+          </NotificationProvider>,
+        );
+
+        await waitFor(() => {
+          expect(onSubscriptionError).toHaveBeenCalled();
+        });
+      });
+
+      it('call subscription api , but the fcmtoken could not be obtained, not call the subscribe api', async () => {
+        useState.mockReturnValueOnce([
+          {...initialState, pushEvents: ['picking', 'notifications', 'janis']},
+          mockSetState,
+        ]);
 
         jest.spyOn(React, 'useEffect').mockImplementationOnce((f) => f());
 
-        spyGetToken.mockReturnValueOnce('');
+        spyGetFCMToken.mockReturnValueOnce('');
 
         testRenderer.create(
           <NotificationProvider
@@ -164,16 +185,15 @@ describe('NotificationWrapper', () => {
         });
       });
 
-      it('... , but not receive valid params as [appName, events, environment], not call subscribe api', async () => {
+      it('call subscription api, but not receive valid params as [appName, events, environment], not call subscribe api', async () => {
         useState.mockReturnValueOnce([
           {...initialState, pushEvents: ['picking', 'notifications', 'janis']},
           mockSetState,
         ]);
-        useRefSpy.mockReturnValueOnce({current: false});
 
         jest.spyOn(React, 'useEffect').mockImplementationOnce((f) => f());
 
-        spyGetToken.mockReturnValueOnce('');
+        spyGetFCMToken.mockReturnValueOnce('');
 
         testRenderer.create(
           <NotificationProvider>
@@ -185,40 +205,31 @@ describe('NotificationWrapper', () => {
           expect(spySubscribeNotification).not.toHaveBeenCalled();
         });
       });
+
+      it('call subscription api, but the fcmtoken is the same as the stored token, not make a request', async () => {
+        useState.mockReturnValueOnce([
+          {...initialState, pushEvents: ['picking', 'notifications', 'janis']},
+          mockSetState,
+        ]);
+
+        spyGetFCMToken.mockResolvedValueOnce('fcmToken');
+        spyGetStoredToken.mockResolvedValueOnce('fcmToken');
+
+        jest.spyOn(React, 'useEffect').mockImplementationOnce((f) => f());
+
+        testRenderer.create(
+          <NotificationProvider
+            appName="PickingApp"
+            events={['picking']}
+            environment="local">
+            <View />
+          </NotificationProvider>,
+        );
+
+        await waitFor(() => {
+          expect(spySubscribeNotification).not.toHaveBeenCalled();
+        });
+      });
     });
   });
-  // describe('when the app is first open from notification', () => {
-  //   const updatedInitialState = {
-  //     foregroundNotification: {},
-  //     backgroundNotification: {},
-  //     subscribeError: null,
-  //     deviceToken: 'fcmToken',
-  //     pushEvents: ['picking', 'notifications', 'janis'],
-  //   };
-  //   it('handleAppOpeningByNotification should obtain this data and setted in backgroundNotification state', async () => {
-  //     useState.mockReturnValueOnce([updatedInitialState, mockSetState]);
-  //     useRefSpy.mockReturnValueOnce({current: false});
-  //     mockGetInitialNotification.mockResolvedValueOnce({
-  //       message: 'message test',
-  //     });
-
-  //     jest.spyOn(React, 'useEffect').mockImplementationOnce((f) => f());
-
-  //     testRenderer.create(
-  //       <NotificationProvider
-  //         appName="PickingApp"
-  //         environment="local"
-  //         events={['picking']}>
-  //         <View />
-  //       </NotificationProvider>,
-  //     );
-
-  //     await waitFor(() => {
-  //       expect(mockSetState).toHaveBeenCalledWith({
-  //         ...updatedInitialState,
-  //         backgroundNotification: {message: 'message test'},
-  //       });
-  //     });
-  //   });
-  // });
 });

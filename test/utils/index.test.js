@@ -1,6 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  getFCMToken,
   isArray,
   isFunction,
   isObject,
@@ -11,6 +9,7 @@ import {
   isBoolean,
   isNumber,
   promiseWrapper,
+  prepareEventsToSubscribe,
 } from '../../lib/utils';
 
 const mockGetToken = jest.fn();
@@ -34,46 +33,6 @@ jest.mock('@react-native-firebase/messaging', () => ({
 describe('utils', () => {
   describe('messaging utils', () => {
     const fakeRemoteMessage = {data: {key: 'value'}};
-    const getItemSpy = jest.spyOn(AsyncStorage, 'getItem');
-
-    describe('getFCMToken function is responsible for obtaining the Firebase cloud messaging token from the device:', () => {
-      describe('return an empty string when:', () => {
-        it('async storage throws an error', async () => {
-          getItemSpy.mockRejectedValueOnce(new Error('error'));
-
-          expect(await getFCMToken()).toStrictEqual('');
-        });
-
-        it('async storage returns empty or null fcmToken and messaging throws an error', async () => {
-          getItemSpy.mockResolvedValueOnce('');
-          mockGetToken.mockRejectedValueOnce(new Error('error'));
-
-          expect(await getFCMToken()).toStrictEqual('');
-        });
-
-        it('async storage and getToken method from messaging returns empty or null fcmToken', async () => {
-          getItemSpy.mockResolvedValueOnce(null);
-          mockGetToken.mockResolvedValueOnce(null);
-
-          expect(await getFCMToken()).toStrictEqual('');
-        });
-      });
-
-      describe('return FCM TOKEN when:', () => {
-        it('async storage return the fcm token from storage', async () => {
-          getItemSpy.mockResolvedValueOnce('storageFCMToken');
-
-          expect(await getFCMToken()).toStrictEqual('storageFCMToken');
-        });
-
-        it('async storage hasnt token stored but this is obtain from getToken method', async () => {
-          getItemSpy.mockResolvedValueOnce('');
-          mockGetToken.mockResolvedValueOnce('newFCMToken');
-
-          expect(await getFCMToken()).toStrictEqual('newFCMToken');
-        });
-      });
-    });
 
     describe('setupForegroundMessageHandler provides the listener with foreground notifications', () => {
       it('returns the listener and call the function when this is listened', () => {
@@ -115,6 +74,23 @@ describe('utils', () => {
 
         expect(mockOnNotificationOpenedApp).toHaveBeenCalledTimes(1);
         expect(mockCallback).toHaveBeenCalledWith(fakeRemoteMessage);
+      });
+    });
+
+    describe('prepareEventsToSubscribe', () => {
+      it('should return an array of events', () => {
+        const events = prepareEventsToSubscribe(['event1', 'event2', 3, null]);
+        expect(events).toEqual(['event1', 'event2']);
+      });
+
+      it('should return an empty array if no events are provided', () => {
+        const events = prepareEventsToSubscribe();
+        expect(events).toEqual([]);
+      });
+
+      it('should return an array of events if a single event is provided', () => {
+        const events = prepareEventsToSubscribe('event1');
+        expect(events).toEqual(['event1']);
       });
     });
   });
