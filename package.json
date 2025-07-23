@@ -1,6 +1,6 @@
 {
   "name": "@janiscommerce/app-push-notification",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "type": "commonjs",
   "description": "This package will take care of performing the main actions for registration to receive notifications in the foreground and background.",
   "main": "lib/index.js",
