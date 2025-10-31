@@ -1,10 +1,9 @@
 import nock from 'nock';
-import Request from '@janiscommerce/app-request';
+import RequestInstance from '../../../../lib/utils/request';
 import cancelNotificationsSubscription from '../../../../lib/utils/api/cancelNotificationsSubscription';
 import {promiseWrapper} from '../../../../lib/utils';
 
 describe('cancelNotificationsSubscription', () => {
-  const RequestInstance = new Request({JANIS_ENV: 'local'});
   const postSpy = jest.spyOn(RequestInstance, 'post');
 
   const validParams = {
@@ -17,7 +16,7 @@ describe('cancelNotificationsSubscription', () => {
       postSpy.mockRejectedValueOnce(new Error('API call failed'));
 
       const [, error] = await promiseWrapper(
-        cancelNotificationsSubscription(validParams, RequestInstance),
+        cancelNotificationsSubscription(validParams),
       );
       expect(error).toBeDefined();
       expect(error.message).toBe('API call failed');

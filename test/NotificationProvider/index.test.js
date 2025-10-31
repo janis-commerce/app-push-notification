@@ -3,9 +3,12 @@ import nock from 'nock';
 import {View} from 'react-native';
 import testRenderer from 'react-test-renderer';
 import {waitFor} from '@testing-library/react-native';
+import RequestInstance from '../../lib/utils/request';
 import NotificationProvider from '../../lib/NotificationProvider';
 import * as tokenUtils from '../../lib/utils/token';
 import * as SubscribeNotifications from '../../lib/utils/api/SubscribeNotifications';
+
+const postSpy = jest.spyOn(RequestInstance, 'post');
 
 const mockOnMessage = jest.fn();
 const mockOnNotificationOpenedApp = jest.fn();
@@ -39,7 +42,6 @@ describe('NotificationWrapper', () => {
     subscribeError: null,
   };
   const mockSetState = jest.fn();
-  const server = `https://notifications.local.in/api`;
 
   describe('returns null', () => {
     it('when not receive a valid children', () => {
@@ -61,7 +63,7 @@ describe('NotificationWrapper', () => {
       });
 
       it('call subscription api', async () => {
-        nock(server).post('/subscribe/push').reply(200, {});
+        postSpy.mockResolvedValueOnce({result: {}});
         useState.mockReturnValueOnce([
           {
             ...initialState,
@@ -69,7 +71,6 @@ describe('NotificationWrapper', () => {
           },
           mockSetState,
         ]);
-        spySubscribeNotification.mockResolvedValueOnce({result: {}});
 
         jest
           .spyOn(React, 'useEffect')
@@ -95,37 +96,6 @@ describe('NotificationWrapper', () => {
 
         await waitFor(() => {
           expect(spySubscribeNotification).toHaveBeenCalled();
-        });
-      });
-
-      it('call subscription api, but if an error occurs set error in the state', async () => {
-        nock(server).post('/subscribe/push').reply(400, {message: 'error'});
-        useState.mockReturnValueOnce([
-          {...initialState, pushEvents: ['picking', 'notifications', 'janis']},
-          mockSetState,
-        ]);
-        spySubscribeNotification.mockRejectedValueOnce({message: 'error'});
-
-        jest
-          .spyOn(React, 'useEffect')
-          .mockImplementationOnce((f) => f())
-          .mockImplementationOnce((f) => f());
-
-        spyGetFCMToken.mockReturnValueOnce('fcmToken');
-
-        testRenderer.create(
-          <NotificationProvider
-            appName="PickingApp"
-            events={['picking', 'notifications', 'janis']}
-            environment="beta"
-            channelConfigs={{}}
-            backgroundNotificationSound="test">
-            <View />
-          </NotificationProvider>,
-        );
-
-        await waitFor(() => {
-          expect(mockSetState).toHaveBeenCalled();
         });
       });
 

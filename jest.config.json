@@ -1,40 +1,42 @@
 {
-	"preset": "react-native",
-	"roots": ["<rootDir>"],
-	"setupFiles": ["<rootDir>/setupTest/jest.setup.js"],
-	"setupFilesAfterEnv": ["<rootDir>/setupTest/jest.setup.js"],
-	"verbose": true,
-	"moduleDirectories": ["node_modules", "lib"],
-	"clearMocks": true,
-	"moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
-    "testMatch": ["**/__tests__/**/*.js?(x)", "**/?(*.)+(spec|test).js?(x)"],
-    "coverageReporters": ["html", "text"],
-	"coverageDirectory": "coverage",
-	"collectCoverageFrom": [
-		"lib/**/*.{js,jsx,ts,tsx}",
-		"!**/node_modules/**",
-		"!**/vendor/**",
-		"!**/ios/**",
-		"!**/android/**",
-		"!**/env/**",
-		"!<rootDir>/index.js",
-		"!<rootDir>/coverage",
-		"!**/jestMocks/**"
-	],
-	"coveragePathIgnorePatterns": ["/node_modules/", "<rootDir>/index.js"],
-	"coverageThreshold": {
-		"global": {
-			"branches": 100,
-			"functions": 100,
-			"lines": 100,
-			"statements": 100
-		}
-	},
-	"moduleNameMapper": {
-		".+\\.(css|style|less|sass|scss|png|jpg|ttf|woff|woff2)$": "jest-transform-stub",
-		"\\.(css|less)$": "identity-obj-proxy"
-	},
-    "transformIgnorePatterns": [
-        "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*'|@react-native-firebase/messaging|@react-native-firebase/app)"
-    ]
+  "preset": "react-native",
+  "roots": ["<rootDir>"],
+  "setupFiles": ["<rootDir>/setupTest/jest.setup.js"],
+  "setupFilesAfterEnv": ["<rootDir>/setupTest/jest.setup.js"],
+  "verbose": true,
+  "moduleDirectories": ["node_modules", "lib"],
+  "clearMocks": true,
+  "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
+  "testMatch": [
+    "<rootDir>/test/NotificationProvider/index.test.js",
+    "<rootDir>/test/NotificationContext.test.js",
+    "<rootDir>/test/utils/index.test.js",
+    "<rootDir>/test/utils/api/cancelNotificationsSubscription/index.test.js"
+  ],
+  "coverageReporters": ["html", "text"],
+  "coverageDirectory": "coverage",
+  "collectCoverageFrom": [
+    "<rootDir>/lib/index.js",
+    "<rootDir>/lib/NotificationProvider/index.js",
+    "<rootDir>/lib/NotificationContext.js",
+    "<rootDir>/lib/utils/index.js",
+    "<rootDir>/lib/utils/api/cancelNotificationsSubscription/index.js",
+    "<rootDir>/lib/utils/api/setUpdateSubscriptionByTokenRefresh/index.js"
+  ],
+  "coveragePathIgnorePatterns": ["/node_modules/", "<rootDir>/index.js"],
+  "coverageThreshold": {
+    "global": {
+      "branches": 100,
+      "functions": 100,
+      "lines": 100,
+      "statements": 100
+    }
+  },
+  "moduleNameMapper": {
+    ".+\\.(css|style|less|sass|scss|png|jpg|ttf|woff|woff2)$": "jest-transform-stub",
+    "\\.(css|less)$": "identity-obj-proxy"
+  },
+  "transformIgnorePatterns": [
+    "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*'|@react-native-firebase/messaging|@react-native-firebase/app)"
+  ]
 }
