@@ -32,7 +32,6 @@ describe('message handlers utils', () => {
       setupForegroundMessageHandler(mockCallback);
 
       mockOnMessage.mock.calls[0][0](fakeRemoteMessage);
-
       expect(mockOnMessage).toHaveBeenCalledTimes(1);
       expect(mockCallback).toHaveBeenCalledWith(fakeRemoteMessage);
     });
@@ -41,19 +40,25 @@ describe('message handlers utils', () => {
   describe('setupBackgroundMessageHandler provides the listener with background notifications', () => {
     it('calls setBackgroundMessageHandler with remoteMessage', () => {
       const mockCallback = jest.fn();
-      setupBackgroundMessageHandler(mockCallback);
+      setupBackgroundMessageHandler(
+        {test: {maxStorageQuantity: 1000, expirationTime: 1000}},
+        mockCallback,
+      );
 
       mockBackgroundMessageHandler.mock.calls[0][0]();
 
       expect(mockBackgroundMessageHandler).toHaveBeenCalledTimes(1);
     });
-    it('calls setBackgroundMessageHandler with remoteMessage', () => {
-      setupBackgroundMessageHandler();
+    it.each([{test: {expirationTime: 1000}}, undefined])(
+      'calls setBackgroundMessageHandler with remoteMessage',
+      (storageConfig) => {
+        setupBackgroundMessageHandler(storageConfig);
 
-      mockBackgroundMessageHandler.mock.calls[0][0](fakeRemoteMessage);
+        mockBackgroundMessageHandler.mock.calls[0][0](fakeRemoteMessage);
 
-      expect(mockBackgroundMessageHandler).toHaveBeenCalledTimes(1);
-    });
+        expect(mockBackgroundMessageHandler).toHaveBeenCalledTimes(1);
+      },
+    );
 
     it('removes the oldest notification if the stored quantity is greater than the max storage quantity', () => {
       Storage.get.mockReturnValueOnce([
