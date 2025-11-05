@@ -69,3 +69,7 @@ types/
 
 # Bundle artifact
 *.jsbundle
+
+# Cursor rules
+/.cursor/rules/*
+!/.cursor/rules/apps-ai-rules*

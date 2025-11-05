@@ -37,7 +37,7 @@ describe('Storage', () => {
       expect(notification).toEqual({});
     });
 
-    it('should return an empty object if the stored notification is not found', () => {
+    it('should return an empty object if the messageId does not match any stored notification', () => {
       Storage.get.mockReturnValueOnce([{type: 'test', messageId: '234'}]);
 
       const notification = getStoredNotification({
