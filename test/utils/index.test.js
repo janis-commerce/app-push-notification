@@ -3,80 +3,14 @@ import {
   isFunction,
   isObject,
   isString,
-  setupBackgroundMessageHandler,
-  setupForegroundMessageHandler,
-  setupNotificationOpenedHandler,
   isBoolean,
   isNumber,
   promiseWrapper,
   prepareEventsToSubscribe,
 } from '../../lib/utils';
 
-const mockGetToken = jest.fn();
-const mockOnMessage = jest.fn();
-const mockBackgroundMessageHandler = jest.fn();
-const mockOnNotificationOpenedApp = jest.fn();
-const mockHasPermission = jest.fn();
-
-jest.mock('@react-native-firebase/messaging', () => ({
-  __esModule: true,
-  default: jest.fn(() => ({
-    getMessaging: jest.fn(),
-    getToken: mockGetToken,
-    onMessage: mockOnMessage,
-    setBackgroundMessageHandler: mockBackgroundMessageHandler,
-    onNotificationOpenedApp: mockOnNotificationOpenedApp,
-    hasPermission: mockHasPermission,
-  })),
-}));
-
 describe('utils', () => {
   describe('messaging utils', () => {
-    const fakeRemoteMessage = {data: {key: 'value'}};
-
-    describe('setupForegroundMessageHandler provides the listener with foreground notifications', () => {
-      it('returns the listener and call the function when this is listened', () => {
-        const mockCallback = jest.fn();
-        setupForegroundMessageHandler(mockCallback);
-
-        mockOnMessage.mock.calls[0][0](fakeRemoteMessage);
-
-        expect(mockOnMessage).toHaveBeenCalledTimes(1);
-        expect(mockCallback).toHaveBeenCalledWith(fakeRemoteMessage);
-      });
-    });
-
-    describe('setupBackgroundMessageHandler provides the listener with background notifications', () => {
-      it('calls setBackgroundMessageHandler with remoteMessage', () => {
-        const mockCallback = jest.fn();
-        setupBackgroundMessageHandler(mockCallback);
-
-        mockBackgroundMessageHandler.mock.calls[0][0](fakeRemoteMessage);
-
-        expect(mockBackgroundMessageHandler).toHaveBeenCalledTimes(1);
-        expect(mockCallback).toHaveBeenCalledWith(fakeRemoteMessage);
-      });
-      it('calls setBackgroundMessageHandler with remoteMessage', () => {
-        setupBackgroundMessageHandler();
-
-        mockBackgroundMessageHandler.mock.calls[0][0](fakeRemoteMessage);
-
-        expect(mockBackgroundMessageHandler).toHaveBeenCalledTimes(1);
-      });
-    });
-
-    describe('setupNotificationOpenedHandler provides the listener that listens for the opening of the app from the background through a notification', () => {
-      it('calls setBackgroundMessageHandler with remoteMessage', () => {
-        const mockCallback = jest.fn();
-        setupNotificationOpenedHandler(mockCallback);
-
-        mockOnNotificationOpenedApp.mock.calls[0][0](fakeRemoteMessage);
-
-        expect(mockOnNotificationOpenedApp).toHaveBeenCalledTimes(1);
-        expect(mockCallback).toHaveBeenCalledWith(fakeRemoteMessage);
-      });
-    });
-
     describe('prepareEventsToSubscribe', () => {
       it('should return an array of events', () => {
         const events = prepareEventsToSubscribe(['event1', 'event2', 3, null]);

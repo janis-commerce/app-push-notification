@@ -67,3 +67,14 @@ jest.mock('react-native-device-info', () => {
     ...RNDeviceInfo,
   };
 });
+
+jest.mock('@janiscommerce/app-storage', () => ({
+  __esModule: true,
+  default: jest.fn().mockImplementation(() => ({
+    get: jest.fn(),
+    set: jest.fn(),
+    db: {
+      contains: jest.fn(),
+    },
+  })),
+}));
