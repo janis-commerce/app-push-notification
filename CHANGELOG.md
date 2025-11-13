@@ -6,7 +6,7 @@
 
 ### Added
 
-- workflow to publish pkg beta version
+- mmkv to persist notifications
 
 ## [0.2.0-beta.1] - 2025-11-13
 
