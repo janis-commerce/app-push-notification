@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.2.0-beta.1] - 2025-11-13
+
+### Added
+
+- workflow to publish pkg beta version
+
 ## [0.1.0] - 2025-11-11
 
 ### Added
