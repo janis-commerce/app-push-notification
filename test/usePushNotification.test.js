@@ -3,6 +3,7 @@ import {renderHook, waitFor} from '@testing-library/react-native';
 import usePushNotification from '../lib/usePushNotification';
 import * as cancelNotificationsSubscription from '../lib/utils/api/cancelNotificationsSubscription';
 import * as SubscribeNotifications from '../lib/utils/api/SubscribeNotifications';
+import * as tokenUtils from '../lib/utils/token';
 import {promiseWrapper} from '../lib/utils';
 
 describe('usePushNotification hook', () => {
@@ -15,6 +16,9 @@ describe('usePushNotification hook', () => {
     SubscribeNotifications,
     'default',
   );
+
+  const spyGetStoredToken = jest.spyOn(tokenUtils, 'getStoredToken');
+  const spyGetFCMToken = jest.spyOn(tokenUtils, 'getFCMToken');
 
   const initialState = {
     deviceToken: null,
@@ -44,12 +48,10 @@ describe('usePushNotification hook', () => {
 
   describe('the object contains:', () => {
     describe('updateSuscription util', () => {
-      it('this util call the api to suscribe to notifications service', async () => {
-        spySubscribeNotifications.mockResolvedValueOnce({result: {}});
+      it('should return null when additionalInfo is not valid', async () => {
         useState.mockReturnValueOnce([
           {
             ...initialState,
-            deviceToken: 'fcmToken',
             pushEvents: ['picking:session:created'],
           },
           mockSetState,
@@ -60,7 +62,34 @@ describe('usePushNotification hook', () => {
             'local',
             ['picking:session:created'],
             'PickingApp',
-            {current: false},
+          ),
+        );
+        const {updateSuscription} = result.current;
+
+        const response = await updateSuscription('invalid');
+
+        expect(response).toBeNull();
+        expect(spySubscribeNotifications).not.toHaveBeenCalled();
+      });
+
+      it('should use FCM token when stored token does not exist', async () => {
+        spyGetStoredToken.mockResolvedValueOnce(null);
+        spyGetFCMToken.mockResolvedValueOnce('fcmToken');
+        spySubscribeNotifications.mockResolvedValueOnce({result: {}});
+
+        useState.mockReturnValueOnce([
+          {
+            ...initialState,
+            pushEvents: ['picking:session:created'],
+          },
+          mockSetState,
+        ]);
+
+        const {result} = renderHook(() =>
+          usePushNotification(
+            'local',
+            ['picking:session:created'],
+            'PickingApp',
           ),
         );
         const {updateSuscription} = result.current;
@@ -68,16 +97,25 @@ describe('usePushNotification hook', () => {
         await updateSuscription({language: 'en-US'});
 
         await waitFor(() => {
-          expect(spySubscribeNotifications).toHaveBeenCalled();
+          expect(spyGetStoredToken).toHaveBeenCalled();
+          expect(spyGetFCMToken).toHaveBeenCalled();
+          expect(spySubscribeNotifications).toHaveBeenCalledWith(
+            expect.objectContaining({
+              token: 'fcmToken',
+              additionalInfo: {language: 'en-US'},
+            }),
+            expect.anything(),
+          );
         });
       });
 
-      it('this util returns an error when the suscription has an error', async () => {
-        spySubscribeNotifications.mockRejectedValueOnce({message: 'error'});
+      it('should call the api to subscribe to notifications service', async () => {
+        spyGetStoredToken.mockResolvedValueOnce('storedToken');
+        spySubscribeNotifications.mockResolvedValueOnce({result: {}});
+
         useState.mockReturnValueOnce([
           {
             ...initialState,
-            deviceToken: 'fcmToken',
             pushEvents: ['picking:session:created'],
           },
           mockSetState,
@@ -88,12 +126,47 @@ describe('usePushNotification hook', () => {
             'local',
             ['picking:session:created'],
             'PickingApp',
-            {current: false},
           ),
         );
         const {updateSuscription} = result.current;
 
-        const [, response] = await promiseWrapper(updateSuscription());
+        await updateSuscription({language: 'en-US'});
+
+        await waitFor(() => {
+          expect(spySubscribeNotifications).toHaveBeenCalledWith(
+            expect.objectContaining({
+              token: 'storedToken',
+              additionalInfo: {language: 'en-US'},
+            }),
+            expect.anything(),
+          );
+        });
+      });
+
+      it('should return an error when the subscription fails', async () => {
+        spyGetStoredToken.mockResolvedValueOnce('storedToken');
+        spySubscribeNotifications.mockRejectedValueOnce({message: 'error'});
+
+        useState.mockReturnValueOnce([
+          {
+            ...initialState,
+            pushEvents: ['picking:session:created'],
+          },
+          mockSetState,
+        ]);
+
+        const {result} = renderHook(() =>
+          usePushNotification(
+            'local',
+            ['picking:session:created'],
+            'PickingApp',
+          ),
+        );
+        const {updateSuscription} = result.current;
+
+        const [, response] = await promiseWrapper(
+          updateSuscription({language: 'en-US'}),
+        );
 
         await expect(response).toStrictEqual({message: 'error'});
       });
