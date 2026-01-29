@@ -47,7 +47,7 @@ describe('usePushNotification hook', () => {
   });
 
   describe('the object contains:', () => {
-    describe('updateSuscription util', () => {
+    describe('updateSubscription util', () => {
       it('should return null when additionalInfo is not valid', async () => {
         useState.mockReturnValueOnce([
           {
@@ -64,9 +64,9 @@ describe('usePushNotification hook', () => {
             'PickingApp',
           ),
         );
-        const {updateSuscription} = result.current;
+        const {updateSubscription} = result.current;
 
-        const response = await updateSuscription('invalid');
+        const response = await updateSubscription('invalid');
 
         expect(response).toBeNull();
         expect(spySubscribeNotifications).not.toHaveBeenCalled();
@@ -92,9 +92,9 @@ describe('usePushNotification hook', () => {
             'PickingApp',
           ),
         );
-        const {updateSuscription} = result.current;
+        const {updateSubscription} = result.current;
 
-        await updateSuscription({language: 'en-US'});
+        await updateSubscription({language: 'en-US'});
 
         await waitFor(() => {
           expect(spyGetStoredToken).toHaveBeenCalled();
@@ -128,9 +128,9 @@ describe('usePushNotification hook', () => {
             'PickingApp',
           ),
         );
-        const {updateSuscription} = result.current;
+        const {updateSubscription} = result.current;
 
-        await updateSuscription({language: 'en-US'});
+        await updateSubscription({language: 'en-US'});
 
         await waitFor(() => {
           expect(spySubscribeNotifications).toHaveBeenCalledWith(
@@ -162,10 +162,10 @@ describe('usePushNotification hook', () => {
             'PickingApp',
           ),
         );
-        const {updateSuscription} = result.current;
+        const {updateSubscription} = result.current;
 
         const [, response] = await promiseWrapper(
-          updateSuscription({language: 'en-US'}),
+          updateSubscription({language: 'en-US'}),
         );
 
         await expect(response).toStrictEqual({message: 'error'});
