@@ -2,9 +2,11 @@
 
 ## [Unreleased]
 
-### BREAKING CHANGES
+## [1.0.0] - 2026-01-30
 
-- **Renamed function**: `updateSuscription` has been renamed to `updateSubscription` to fix typo. If you are using this function in your code, you need to update all references from `updateSuscription` to `updateSubscription`.
+### Changed
+
+- [BREAKING-CHANGES] **Renamed function**: `updateSuscription` has been renamed to `updateSubscription` to fix typo. If you are using this function in your code, you need to update all references from `updateSuscription` to `updateSubscription`.
 
 ## [0.2.0] - 2025-11-13
 
