@@ -62,6 +62,8 @@ describe('NotificationWrapper', () => {
 
       it('call subscription api', async () => {
         nock(server).post('/subscribe/push').reply(200, {});
+        spyGetFCMToken.mockResolvedValueOnce('fcmToken');
+        spyGetStoredToken.mockResolvedValueOnce('storedToken');
         useState.mockReturnValueOnce([
           {
             ...initialState,

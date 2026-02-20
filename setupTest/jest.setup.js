@@ -78,3 +78,16 @@ jest.mock('@janiscommerce/app-storage', () => ({
     },
   })),
 }));
+
+jest.mock('../lib/utils/crashlytics', () => ({
+  __esModule: true,
+  default: {
+    log: jest.fn(),
+    recordError: jest.fn(),
+    setAttribute: jest.fn(),
+    setAttributes: jest.fn(),
+    setUserId: jest.fn(),
+    setCrashlyticsCollectionEnabled: jest.fn(),
+    isCrashlyticsCollectionEnabled: true,
+  },
+}));

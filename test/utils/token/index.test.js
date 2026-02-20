@@ -28,10 +28,14 @@ describe('Token utils', () => {
       expect(token).toBe('testToken');
     });
 
-    it('should return null if the FCM token is not available', async () => {
+    it('should throw an error if the FCM token is null', async () => {
+      mockGetToken.mockResolvedValueOnce(null);
+      await expect(getFCMToken()).rejects.toThrow('FCM token is null');
+    });
+
+    it('should throw an error if getToken fails', async () => {
       mockGetToken.mockRejectedValueOnce(new Error('FCM token not available'));
-      const token = await getFCMToken();
-      expect(token).toBeNull();
+      await expect(getFCMToken()).rejects.toThrow('FCM token not available');
     });
   });
 
@@ -42,22 +46,27 @@ describe('Token utils', () => {
       expect(token).toBe('testToken');
     });
 
-    it('should return null if the stored token is not available', async () => {
-      getItemSpy.mockRejectedValueOnce(new Error('Stored token not available'));
+    it('should return null if the stored token does not exist', async () => {
+      getItemSpy.mockResolvedValueOnce(null);
       const token = await getStoredToken();
       expect(token).toBeNull();
+    });
+
+    it('should throw an error if AsyncStorage.getItem fails', async () => {
+      getItemSpy.mockRejectedValueOnce(new Error('Storage error'));
+      await expect(getStoredToken()).rejects.toThrow('Storage error');
     });
   });
 
   describe('updateStoredToken', () => {
-    it('should update the stored token', async () => {
+    it('should update the stored token and return it', async () => {
       const token = await updateStoredToken('testToken');
-      expect(token).toBeDefined();
+      expect(token).toBe('testToken');
       expect(setItemSpy).toHaveBeenCalledWith('currentToken', 'testToken');
     });
 
-    it('should return null if the stored token is not available', async () => {
-      setItemSpy.mockRejectedValueOnce(new Error('Stored token not available'));
+    it('should return null if AsyncStorage.setItem fails', async () => {
+      setItemSpy.mockRejectedValueOnce(new Error('Storage error'));
       const token = await updateStoredToken('testToken');
       expect(token).toBeNull();
     });
