@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-07-08
+
+### Changed
+
+- [BREAKING-CHANGES] **@janiscommerce/app-crashlytics peer dependency**: now requires `>=3.0.1` (previously `>=2.0.0`). Consumer apps must update to app-crashlytics v3.
+- [BREAKING-CHANGES] **@react-native-firebase/app and @react-native-firebase/messaging peer dependencies**: now require `^21.6.1` (previously `^18.9.0`). Consumer apps must upgrade their react-native-firebase packages to v21.
+- [BREAKING-CHANGES] **react-native peer dependency**: minimum version raised to `0.71.5` (previously `0.67.5`).
+
+### Added
+
+- Support for React Native up to 0.81 (tested with 0.80.2)
+- Support for react 19 (`react >=17.0.2 <20.0.0`)
+
 ## [1.0.0] - 2026-01-30
 
 ### Changed
